@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Plain JS DOM Manipulation & Event Handling Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .highlight { background-color: yellow; }
+    .done { text-decoration: line-through; color: gray; }
+    .dark { background-color: #222; color: #fff; }
+    section { margin-bottom: 40px; }
+    hr { margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+
+  <h1>Plain JavaScript DOM Manipulation & Event Handling Demo</h1>
+
+
+  <section>
+    <h2>1. Text & HTML Manipulation</h2>
+    <p id="textBox">This is a <strong>text</strong> box.</p>
+    <button id="changeText">Change Text</button>
+    <button id="changeHTML">Change HTML</button>
+  </section>
+
+
+  <section>
+    <h2>2. CSS and Class</h2>
+    <div id="box" style="padding: 10px; border: 1px solid #ccc;">Watch my style!</div>
+    <button id="colorRed">Make Red</button>
+    <button id="toggleHighlight">Toggle Highlight</button>
+  </section>
+
+
+  <section>
+    <h2>3. Attributes and Values</h2>
+    <img id="profilePic" src="https://via.placeholder.com/100" width="100">
+    <button id="changeImage">Change Image</button><br>
+    <input type="text" id="nameInput" value="John Doe">
+    <button id="showName">Show Value</button>
+    <p id="nameOutput"></p>
+  </section>
+
+
+  <section>
+    <h2>4. Add / Remove Elements</h2>
+    <ul id="itemList">
+      <li>Apple</li>
+      <li>Banana</li>
+    </ul>
+    <button id="addItem">Add Item</button>
+    <button id="clearList">Clear All</button>
+  </section>
+
+
+  <section>
+    <h2>5. Event Delegation</h2>
+    <ul id="taskList">
+      <li>Task 1</li>
+      <li>Task 2</li>
+    </ul>
+    <input type="text" id="taskInput" placeholder="Add task">
+    <button id="addTask">Add Task</button>
+  </section>
+
+
+  <section>
+    <h2>6. Theme Toggle (Class Manipulation)</h2>
+    <button id="toggleTheme">Toggle Light/Dark Mode</button>
+  </section>
+
+
+  <hr>
+
+
+  
+    //code<!-- jQuery CDN (place before your script) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  // Task 1: Change Text Content
+  $("#changeText").click(function () {
+    $("#textBox").text("Text has been changed!");
+  });
+
+  // Task 2: Change Inner HTML
+  $("#changeHTML").click(function () {
+    $("#textBox").html('Text has been <em>changed</em> with <strong>HTML</strong>!');
+  });
+
+  // Task 3: Change CSS Style
+  $("#colorRed").click(function () {
+    $("#box").css("color", "red");
+  });
+
+  // Task 4: Toggle Class
+  $("#toggleHighlight").click(function () {
+    $("#box").toggleClass("highlight");
+  });
+
+  // Task 5: Change Image Source
+  $("#changeImage").click(function () {
+    $("#profilePic").attr("src", "pexels-sulimansallehi-1704488.jpg");
+  });
+
+  // Task 6: Read Input Value
+  $("#showName").click(function () {
+    const name = $("#nameInput").val();
+    $("#nameOutput").text("Hello, " + name + "!");
+  });
+
+  // Task 7: Add New List Item
+  $("#addItem").click(function () {
+    $("#itemList").append("<li>New Fruit</li>");
+  });
+
+  // Task 8: Clear List Items
+  $("#clearList").click(function () {
+    $("#itemList").empty();
+  });
+
+  // Task 9: Add Task from Input
+  $("#addTask").click(function () {
+    const taskText = $("#taskInput").val();
+    if ($.trim(taskText)) {
+      $("#taskList").append(`<li>${taskText} <span class="delete" style="color:red; cursor:pointer;">x</span></li>`);
+      $("#taskInput").val("");
+    }
+  });
+
+  // Task 10: Prevent Empty Task (disable button if empty)
+  $("#taskInput").on("input", function () {
+    const value = $(this).val().trim();
+    $("#addTask").prop("disabled", value === "");
+  });
+
+  // Task 11: Toggle .done Class on <li>
+  $("#taskList").on("click", "li", function () {
+    $(this).toggleClass("done");
+  });
+
+  // Task 12: Understand e.target
+  $("#taskList").on("click", function (e) {
+    console.log("You clicked on:", e.target);
+    console.log("Tag name:", e.target.tagName);
+  });
+
+  // Task 13: Toggle Theme
+  $("#toggleTheme").click(function () {
+    $("body").toggleClass("dark");
+  });
+
+  // Task 14: Live DOM Logging
+  const observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      console.log("DOM mutation detected:", mutation);
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+
+  // Task 15: Delete Task with 'x'
+  $("#taskList").on("click", ".delete", function () {
+    $(this).parent().remove();
+  });
+</script> here
+  </script>
+
+
+</body>
+</html>

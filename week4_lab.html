@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Plain JS DOM Manipulation & Event Handling Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .highlight { background-color: yellow; }
+    .done { text-decoration: line-through; color: gray; }
+    .dark { background-color: #222; color: #fff; }
+    section { margin-bottom: 40px; }
+    hr { margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+
+  <h1>Plain JavaScript DOM Manipulation & Event Handling Demo</h1>
+
+
+  <section>
+    <h2>1. Text & HTML Manipulation</h2>
+    <p id="textBox">This is a <strong>text</strong> box.</p>
+    <button id="changeText">Change Text</button>
+    <button id="changeHTML">Change HTML</button>
+  </section>
+
+
+  <section>
+    <h2>2. CSS and Class</h2>
+    <div id="box" style="padding: 10px; border: 1px solid #ccc;">Watch my style!</div>
+    <button id="colorRed">Make Red</button>
+    <button id="toggleHighlight">Toggle Highlight</button>
+  </section>
+
+
+  <section>
+    <h2>3. Attributes and Values</h2>
+    <img id="profilePic" src="https://via.placeholder.com/100" width="100">
+    <button id="changeImage">Change Image</button><br>
+    <input type="text" id="nameInput" value="John Doe">
+    <button id="showName">Show Value</button>
+    <p id="nameOutput"></p>
+  </section>
+
+
+  <section>
+    <h2>4. Add / Remove Elements</h2>
+    <ul id="itemList">
+      <li>Apple</li>
+      <li>Banana</li>
+    </ul>
+    <button id="addItem">Add Item</button>
+    <button id="clearList">Clear All</button>
+  </section>
+
+
+  <section>
+    <h2>5. Event Delegation</h2>
+    <ul id="taskList">
+      <li>Task 1</li>
+      <li>Task 2</li>
+    </ul>
+    <input type="text" id="taskInput" placeholder="Add task">
+    <button id="addTask">Add Task</button>
+  </section>
+
+
+  <section>
+    <h2>6. Theme Toggle (Class Manipulation)</h2>
+    <button id="toggleTheme">Toggle Light/Dark Mode</button>
+  </section>
+
+
+  <hr>
+
+
+  <script>
+    // Task 1: Change Text Content with JavaScript
+    document.getElementById('changeText').addEventListener('click', function() {
+      document.getElementById('textBox').textContent = 'Text has been changed!';
+    });
+// Task 2: Change Inner HTML with JavaScript
+document.getElementById('changeHTML').addEventListener('click', function() {
+      document.getElementById('textBox').innerHTML = 'Text has been <em>changed</em> with <strong>HTML</strong>!';
+    });
+     // Task 3: Change CSS Style with JavaScript
+     document.getElementById('colorRed').addEventListener('click', function() {
+      document.getElementById('box').style.color = 'red';
+    });
+    // Task 4: Toggle Class with JavaScript
+    document.getElementById('toggleHighlight').addEventListener('click', function() {
+      document.getElementById('box').classList.toggle('highlight');
+    });
+   // Task 5: Change Image Source with JavaScript
+   document.getElementById('changeImage').addEventListener('click', function() {
+  document.getElementById('profilePic').src = 'pexels-sulimansallehi-1704488.jpg';
+});
+ // Task 6: Read Input Value with JavaScript
+ document.getElementById('showName').addEventListener('click', function() {
+      const name = document.getElementById('nameInput').value;
+      document.getElementById('nameOutput').textContent = 'Hello, ' + name + '!';
+    });
+     // Task 7: Add New List Item with JavaScript
+     document.getElementById('addItem').addEventListener('click', function() {
+      const newItem = document.createElement('li');
+      newItem.textContent = 'New Fruit';
+      document.getElementById('itemList').appendChild(newItem);
+    });
+    // Task 8: Clear List Items with JavaScript
+    document.getElementById('clearList').addEventListener('click', function() {
+      const itemList = document.getElementById('itemList');
+      while (itemList.firstChild) {
+        itemList.removeChild(itemList.firstChild);
+      }
+    });
+    // Task 9: Add Task from Input with JavaScript
+    document.getElementById("addTask").addEventListener("click", function() {
+  let taskText = document.getElementById("taskInput").value;
+  if (taskText.trim()) {
+    let li = document.createElement("li");
+    li.innerHTML = taskText + ' <span class="delete" style="color:red; cursor:pointer;">x</span>';
+    document.getElementById("taskList").appendChild(li);
+    document.getElementById("taskInput").value = "";
+  }
+});
+
+
+// Task 10: Prevent Empty Task
+document.getElementById("taskInput").addEventListener("input", function () {
+  const value = this.value.trim();
+  const addButton = document.getElementById("addTask");
+
+  addButton.disabled = (value === "");
+});
+// Task 11: Toggle .done Class on Click with JavaScript
+document.getElementById("taskList").addEventListener("click", function(e) {
+  if (e.target.tagName === "LI") {
+    e.target.classList.toggle("done");
+  }
+});
+// Task 12: Understand e.target
+document.getElementById("taskList").addEventListener("click", function(e) {
+  console.log("You clicked on:", e.target);
+  console.log("Tag name:", e.target.tagName);
+});
+//Task 13: Toggle Theme
+document.getElementById("toggleTheme").addEventListener("click", function() {
+  document.body.classList.toggle("dark");
+});
+
+// Task 14: Explore DevTools (Live DOM)
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    console.log("DOM mutation detected:", mutation);
+  });
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+});
+
+document.getElementById("taskList").addEventListener("click", function(e) {
+  if (e.target.tagName === "SPAN") {
+    e.target.parentElement.remove();
+  }
+});
+// Task 15: Delete task when 'x' is clicked
+document.getElementById("taskList").addEventListener("click", function(e) {
+  if (e.target.classList.contains("delete")) {
+    e.target.parentElement.remove(); // Remove the entire <li>
+  }
+});
+  </script>
+
+
+</body>
+</html>
+
