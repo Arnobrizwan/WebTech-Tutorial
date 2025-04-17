@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>World's Recipe – Async Javascript Lab Week 5</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 20px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px;
+    }
+    #output {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #aaa;
+      text-align: left;
+    }
+    img {
+      width: 80px;
+      height: auto;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍽️ World's Recipe – Async Javascript Lab Week 5</h1>
+  <button id="btnToggleForm">POST New Recipe</button><br>
+  <button id="btnGetAll">GET All Recipes</button><br>
+  <label for="search">🔍 Filter by Recipe Name: </label>
+  <input type="text" id="search" placeholder="e.g. chicken, soup..." /><br>
+  <button id="btnByName">GET Recipe by Name</button><br>
+  <label for="recipeId">🔍 Enter Recipe ID: </label>
+  <input type="number" id="recipeId" placeholder="e.g. 1" min="1" max="30"><br>
+  <button id="btnById">GET Recipe by ID</button><br>
+  <button id="btnDelete">DELETE Recipe</button><br>
+  <button id="btnUpdate">UPDATE Recipe</button><br>
+  <form id="addRecipeForm" class="hidden">
+    <h2>➕ Add New Recipe</h2>
+    <label>Recipe Name:</label><br>
+    <input type="text" id="recipeName" required><br><br>
+    <label>Cuisine:</label><br>
+    <input type="text" id="recipeCuisine" required><br><br>
+    <label>Image URL:</label><br>
+    <input type="url" id="recipeImage" required><br><br>
+    <label>Rating (0.0 - 5.0):</label><br>
+    <input type="number" id="recipeRating" min="0" max="5" step="0.1" required><br><br>
+    <button type="submit">Submit Recipe</button>
+  </form>
+  <div id="output">Results will appear here...</div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      const output = document.getElementById('output');
+      const baseUrl = 'https://dummyjson.com/recipes';
+
+      document.getElementById('btnGetAll').addEventListener('click', function () {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', baseUrl);
+        xhr.onload = function () {
+          const data = JSON.parse(xhr.responseText);
+          console.table(data.recipes);
+          renderRecipeTable(data.recipes);
+        };
+        xhr.send();
+      });
+
+      function renderRecipeTable(recipes) {
+        let html = `<table><tr><th>ID</th><th>Name</th><th>Cuisine</th><th>Rating</th><th>Image</th></tr>`;
+        for (let recipe of recipes) {
+          html += `<tr>
+            <td>${recipe.id || 'N/A'}</td>
+            <td>${recipe.name || 'N/A'}</td>
+            <td>${recipe.cuisine || 'N/A'}</td>
+            <td>${recipe.rating || 'N/A'}</td>
+            <td><img src="${recipe.image || ''}" alt="${recipe.name || 'No Image'}"></td>
+          </tr>`;
+        }
+        html += `</table>`;
+        output.innerHTML = html;
+      }
+
+      document.getElementById('search').addEventListener('input', function (e) {
+        const query = e.target.value.toLowerCase();
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', baseUrl);
+        xhr.onload = function () {
+          const data = JSON.parse(xhr.responseText);
+          const filtered = data.recipes.filter(r => r.name.toLowerCase().includes(query));
+          renderRecipeTable(filtered);
+        };
+        xhr.send();
+      });
+
+      document.getElementById('btnByName').addEventListener('click', function () {
+        const name = document.getElementById('search').value.toLowerCase();
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', baseUrl);
+        xhr.onload = function () {
+          const data = JSON.parse(xhr.responseText);
+          const matched = data.recipes.filter(r => r.name.toLowerCase().includes(name));
+          if (matched.length > 0) {
+            renderRecipeTable(matched);
+          } else {
+            output.innerText = 'No matching recipes found.';
+          }
+        };
+        xhr.send();
+      });
+
+      document.getElementById('btnById').addEventListener('click', function () {
+        const id = document.getElementById('recipeId').value;
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', `${baseUrl}/${id}`);
+        xhr.onload = function () {
+          const recipe = JSON.parse(xhr.responseText);
+          renderRecipeTable([recipe]);
+        };
+        xhr.send();
+      });
+
+      document.getElementById('btnToggleForm').addEventListener('click', function () {
+        document.getElementById('addRecipeForm').classList.toggle('hidden');
+      });
+
+      document.getElementById('addRecipeForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `${baseUrl}/add`);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        const newRecipe = {
+          name: document.getElementById('recipeName').value,
+          cuisine: document.getElementById('recipeCuisine').value,
+          image: document.getElementById('recipeImage').value,
+          rating: parseFloat(document.getElementById('recipeRating').value)
+        };
+
+        xhr.onload = function () {
+          const res = JSON.parse(xhr.responseText);
+          output.innerHTML = `<div style="color:green;">✅ Recipe added:</div><pre>${JSON.stringify(res, null, 2)}</pre>`;
+          document.getElementById('addRecipeForm').reset();
+          document.getElementById('addRecipeForm').classList.add('hidden');
+        };
+
+        xhr.onerror = function () {
+          output.innerHTML = `<div style="color:red;">❌ Failed to add recipe. Please try again.</div>`;
+        };
+
+        xhr.send(JSON.stringify(newRecipe));
+      });
+
+      document.getElementById('btnDelete').addEventListener('click', function () {
+        const id = document.getElementById('recipeId').value;
+        const xhr = new XMLHttpRequest();
+        xhr.open('DELETE', `${baseUrl}/${id}`);
+        xhr.onload = function () {
+          output.innerText = 'Recipe deleted!\n' + xhr.responseText;
+        };
+        xhr.send();
+      });
+
+      document.getElementById('btnUpdate').addEventListener('click', function () {
+        const id = document.getElementById('recipeId').value;
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', `${baseUrl}/${id}`);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        const updatedData = {
+          name: 'Updated Recipe Name',
+          rating: 4.8
+        };
+
+        xhr.onload = function () {
+          const res = JSON.parse(xhr.responseText);
+          output.innerText = 'Recipe updated!\n' + JSON.stringify(res, null, 2);
+        };
+
+        xhr.send(JSON.stringify(updatedData));
+      });
+    });
+  </script>
+</body>
+</html>

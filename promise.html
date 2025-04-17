@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JavaScript Promise Example</title>
+</head>
+<body>
+
+    <h1>Promise Demo</h1>
+    <p>Open your browser console (Right Click → Inspect → Console) to see the result.</p>
+
+    <script>
+        console.info("Implementasi guna Promise");
+
+        const promise = new Promise(function (resolve, reject) {
+            // Simulasikan async dengan setTimeout (contoh sebenar: request ke server)
+            setTimeout(function () {
+                const randomNumber = Math.random(); // generate nombor rawak
+                if (randomNumber > 0.5) {
+                    resolve(randomNumber); // berjaya, hantar nombor rawak
+                } else {
+                    reject(Error('Random number is less than 0.5')); // gagal, hantar error
+                }
+            }, 5000); // tunggu 5 saat sebelum resolve/reject
+        });
+
+        promise
+            .then(function (result) {
+                console.log("Berjaya! Nombor rawak:", result);
+            })
+            .catch(function (error) {
+                console.error("Gagal:", error.message);
+            });
+
+            promise.then(function (result) {
+                console.log("done");
+            })
+    </script>
+
+</body>
+</html>

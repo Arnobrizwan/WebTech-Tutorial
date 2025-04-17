@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jQuery AJAX Example</title>
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+
+    <h1>AJAX Example</h1>
+    <p>Open the console to see the AJAX request result.</p>
+
+    <script>
+        console.log("jQuery Start");
+
+        $.ajax({
+            url: 'https://api.example.com/data', // Replace with a valid API endpoint
+            method: 'GET',                       // HTTP method (GET, POST, etc.)
+            dataType: 'json',                    // Expected data type
+            success: function (data) {
+                console.log('Success:', data);   // Log the response
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);  // Log any error
+            }
+        });
+
+        console.log("jQuery End");
+    </script>
+
+</body>
+</html>
