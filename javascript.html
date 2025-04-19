@@ -18,6 +18,7 @@
       background: #f9f9f9;
       padding: 10px;
       border: 1px solid #ccc;
+      min-height: 100px;
     }
     table {
       width: 100%;
@@ -40,16 +41,20 @@
 </head>
 <body>
   <h1>🍽️ World's Recipe – Async Javascript Lab Week 5</h1>
+
   <button id="btnToggleForm">POST New Recipe</button><br>
   <button id="btnGetAll">GET All Recipes</button><br>
+
   <label for="search">🔍 Filter by Recipe Name: </label>
   <input type="text" id="search" placeholder="e.g. chicken, soup..." /><br>
   <button id="btnByName">GET Recipe by Name</button><br>
+
   <label for="recipeId">🔍 Enter Recipe ID: </label>
   <input type="number" id="recipeId" placeholder="e.g. 1" min="1" max="30"><br>
   <button id="btnById">GET Recipe by ID</button><br>
   <button id="btnDelete">DELETE Recipe</button><br>
   <button id="btnUpdate">UPDATE Recipe</button><br>
+
   <form id="addRecipeForm" class="hidden">
     <h2>➕ Add New Recipe</h2>
     <label>Recipe Name:</label><br>
@@ -62,6 +67,7 @@
     <input type="number" id="recipeRating" min="0" max="5" step="0.1" required><br><br>
     <button type="submit">Submit Recipe</button>
   </form>
+
   <div id="output">Results will appear here...</div>
 
   <script>
@@ -69,18 +75,16 @@
       const output = document.getElementById('output');
       const baseUrl = 'https://dummyjson.com/recipes';
 
-      document.getElementById('btnGetAll').addEventListener('click', function () {
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', baseUrl);
-        xhr.onload = function () {
-          const data = JSON.parse(xhr.responseText);
-          console.table(data.recipes);
-          renderRecipeTable(data.recipes);
-        };
-        xhr.send();
-      });
+      const scrollToOutput = () => {
+        output.scrollIntoView({ behavior: 'smooth' });
+      };
 
       function renderRecipeTable(recipes) {
+        if (!recipes || recipes.length === 0) {
+          output.innerHTML = "⚠️ No recipes to display.";
+          return;
+        }
+
         let html = `<table><tr><th>ID</th><th>Name</th><th>Cuisine</th><th>Rating</th><th>Image</th></tr>`;
         for (let recipe of recipes) {
           html += `<tr>
@@ -93,43 +97,79 @@
         }
         html += `</table>`;
         output.innerHTML = html;
+        scrollToOutput();
       }
 
-      document.getElementById('search').addEventListener('input', function (e) {
-        const query = e.target.value.toLowerCase();
+      document.getElementById('btnGetAll').addEventListener('click', function () {
+        output.innerText = '🔄 Loading all recipes...';
         const xhr = new XMLHttpRequest();
         xhr.open('GET', baseUrl);
         xhr.onload = function () {
-          const data = JSON.parse(xhr.responseText);
-          const filtered = data.recipes.filter(r => r.name.toLowerCase().includes(query));
-          renderRecipeTable(filtered);
+          if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            console.table(data.recipes);
+            renderRecipeTable(data.recipes);
+          } else {
+            output.innerText = `❌ Error loading recipes. Status: ${xhr.status}`;
+          }
+        };
+        xhr.onerror = () => {
+          output.innerText = '❌ Network error.';
+        };
+        xhr.send();
+      });
+
+      document.getElementById('search').addEventListener('input', function (e) {
+        const query = e.target.value.toLowerCase();
+        if (query.trim() === '') return;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', baseUrl);
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            const filtered = data.recipes.filter(r => r.name.toLowerCase().includes(query));
+            renderRecipeTable(filtered);
+          }
         };
         xhr.send();
       });
 
       document.getElementById('btnByName').addEventListener('click', function () {
-        const name = document.getElementById('search').value.toLowerCase();
+        const name = document.getElementById('search').value.toLowerCase().trim();
+        if (!name) {
+          output.innerText = '⚠️ Please enter a name to search.';
+          return;
+        }
+
         const xhr = new XMLHttpRequest();
         xhr.open('GET', baseUrl);
         xhr.onload = function () {
-          const data = JSON.parse(xhr.responseText);
-          const matched = data.recipes.filter(r => r.name.toLowerCase().includes(name));
-          if (matched.length > 0) {
-            renderRecipeTable(matched);
-          } else {
-            output.innerText = 'No matching recipes found.';
+          if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            const matched = data.recipes.filter(r => r.name.toLowerCase().includes(name));
+            matched.length > 0 ? renderRecipeTable(matched) : output.innerText = '❌ No matching recipes found.';
           }
         };
         xhr.send();
       });
 
       document.getElementById('btnById').addEventListener('click', function () {
-        const id = document.getElementById('recipeId').value;
+        const id = document.getElementById('recipeId').value.trim();
+        if (!id) {
+          output.innerText = '⚠️ Please enter a valid Recipe ID.';
+          return;
+        }
+
         const xhr = new XMLHttpRequest();
         xhr.open('GET', `${baseUrl}/${id}`);
         xhr.onload = function () {
-          const recipe = JSON.parse(xhr.responseText);
-          renderRecipeTable([recipe]);
+          if (xhr.status === 200) {
+            const recipe = JSON.parse(xhr.responseText);
+            renderRecipeTable([recipe]);
+          } else {
+            output.innerText = `❌ Recipe not found (Status ${xhr.status}).`;
+          }
         };
         xhr.send();
       });
@@ -140,9 +180,6 @@
 
       document.getElementById('addRecipeForm').addEventListener('submit', function (e) {
         e.preventDefault();
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', `${baseUrl}/add`);
-        xhr.setRequestHeader('Content-Type', 'application/json');
 
         const newRecipe = {
           name: document.getElementById('recipeName').value,
@@ -151,44 +188,69 @@
           rating: parseFloat(document.getElementById('recipeRating').value)
         };
 
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `${baseUrl}/add`);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
         xhr.onload = function () {
-          const res = JSON.parse(xhr.responseText);
-          output.innerHTML = `<div style="color:green;">✅ Recipe added:</div><pre>${JSON.stringify(res, null, 2)}</pre>`;
-          document.getElementById('addRecipeForm').reset();
-          document.getElementById('addRecipeForm').classList.add('hidden');
+          if (xhr.status === 200 || xhr.status === 201) {
+            const res = JSON.parse(xhr.responseText);
+            output.innerHTML = `<div style="color:green;">✅ Recipe added:</div><pre>${JSON.stringify(res, null, 2)}</pre>`;
+            document.getElementById('addRecipeForm').reset();
+            document.getElementById('addRecipeForm').classList.add('hidden');
+            scrollToOutput();
+          } else {
+            output.innerHTML = `<div style="color:red;">❌ Failed to add recipe (Status ${xhr.status}).</div>`;
+          }
         };
 
-        xhr.onerror = function () {
-          output.innerHTML = `<div style="color:red;">❌ Failed to add recipe. Please try again.</div>`;
+        xhr.onerror = () => {
+          output.innerHTML = `<div style="color:red;">❌ Network error during recipe submission.</div>`;
         };
 
         xhr.send(JSON.stringify(newRecipe));
       });
 
       document.getElementById('btnDelete').addEventListener('click', function () {
-        const id = document.getElementById('recipeId').value;
+        const id = document.getElementById('recipeId').value.trim();
+        if (!id) {
+          output.innerText = '⚠️ Please enter a Recipe ID to delete.';
+          return;
+        }
+
         const xhr = new XMLHttpRequest();
         xhr.open('DELETE', `${baseUrl}/${id}`);
         xhr.onload = function () {
-          output.innerText = 'Recipe deleted!\n' + xhr.responseText;
+          output.innerText = `🗑️ Recipe deleted! Response:\n${xhr.responseText}`;
+          scrollToOutput();
         };
         xhr.send();
       });
 
       document.getElementById('btnUpdate').addEventListener('click', function () {
-        const id = document.getElementById('recipeId').value;
-        const xhr = new XMLHttpRequest();
-        xhr.open('PUT', `${baseUrl}/${id}`);
-        xhr.setRequestHeader('Content-Type', 'application/json');
+        const id = document.getElementById('recipeId').value.trim();
+        if (!id) {
+          output.innerText = '⚠️ Please enter a Recipe ID to update.';
+          return;
+        }
 
         const updatedData = {
           name: 'Updated Recipe Name',
           rating: 4.8
         };
 
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', `${baseUrl}/${id}`);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
         xhr.onload = function () {
-          const res = JSON.parse(xhr.responseText);
-          output.innerText = 'Recipe updated!\n' + JSON.stringify(res, null, 2);
+          if (xhr.status === 200) {
+            const res = JSON.parse(xhr.responseText);
+            output.innerText = `✅ Recipe updated!\n${JSON.stringify(res, null, 2)}`;
+            scrollToOutput();
+          } else {
+            output.innerText = `❌ Failed to update recipe (Status ${xhr.status}).`;
+          }
         };
 
         xhr.send(JSON.stringify(updatedData));
