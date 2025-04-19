@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>World's Recipe – Async Javascript Lab Week 5 (jQuery Version)</title>
+  <title>World's Recipe – Async Javascript Lab Week 5 (jQuery)</title>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <style>
     body {
@@ -57,7 +57,7 @@
   <button id="btnUpdate">UPDATE Recipe</button><br>
 
   <form id="addRecipeForm" class="hidden">
-    <h2>➕ Add New Recipe</h2>
+    <h2>➕ Add / Update Recipe</h2>
     <label>Recipe Name:</label><br>
     <input type="text" id="recipeName" required><br><br>
     <label>Cuisine:</label><br>
@@ -77,7 +77,7 @@
       const $output = $('#output');
 
       function scrollToOutput() {
-        $('html, body').animate({ scrollTop: $output.offset().top }, 500);
+        $('html, body').animate({ scrollTop: $output.offset().top }, 400);
       }
 
       function renderRecipeTable(recipes) {
@@ -89,11 +89,11 @@
         let html = `<table><tr><th>ID</th><th>Name</th><th>Cuisine</th><th>Rating</th><th>Image</th></tr>`;
         $.each(recipes, function (_, recipe) {
           html += `<tr>
-            <td>${recipe.id || 'N/A'}</td>
-            <td>${recipe.name || 'N/A'}</td>
-            <td>${recipe.cuisine || 'N/A'}</td>
-            <td>${recipe.rating || 'N/A'}</td>
-            <td><img src="${recipe.image || ''}" alt="${recipe.name || 'No Image'}"></td>
+            <td>${recipe.id}</td>
+            <td>${recipe.name}</td>
+            <td>${recipe.cuisine}</td>
+            <td>${recipe.rating}</td>
+            <td><img src="${recipe.image}" alt="${recipe.name}"></td>
           </tr>`;
         });
         html += `</table>`;
@@ -101,19 +101,20 @@
         scrollToOutput();
       }
 
+      // ✅ Task 3–5: GET All Recipes + Log + Table
       $('#btnGetAll').click(function () {
-        $output.text('🔄 Loading all recipes...');
+        $output.text('🔄 Loading...');
         $.get(baseUrl, function (data) {
-          console.table(data.recipes);
-          renderRecipeTable(data.recipes);
-        }).fail(function () {
-          $output.text('❌ Failed to load recipes.');
+          console.log(data.recipes); // Task 3
+          console.table(data.recipes); // Task 4
+          renderRecipeTable(data.recipes); // Task 5
         });
       });
 
+      // ✅ Task 6: Live Filter
       $('#search').on('input', function () {
         const query = $(this).val().toLowerCase();
-        if (query.trim() === '') return;
+        if (!query) return;
 
         $.get(baseUrl, function (data) {
           const filtered = data.recipes.filter(r => r.name.toLowerCase().includes(query));
@@ -121,12 +122,10 @@
         });
       });
 
+      // ✅ Task 6 (Explicit Button)
       $('#btnByName').click(function () {
         const name = $('#search').val().toLowerCase().trim();
-        if (!name) {
-          $output.text('⚠️ Please enter a name to search.');
-          return;
-        }
+        if (!name) return $output.text('⚠️ Please enter a name to search.');
 
         $.get(baseUrl, function (data) {
           const matched = data.recipes.filter(r => r.name.toLowerCase().includes(name));
@@ -136,24 +135,30 @@
         });
       });
 
+      // ✅ Task 7: GET Recipe by ID
       $('#btnById').click(function () {
         const id = $('#recipeId').val().trim();
-        if (!id) {
-          $output.text('⚠️ Please enter a valid Recipe ID.');
-          return;
-        }
+        if (!id) return $output.text('⚠️ Please enter a valid ID.');
 
         $.get(`${baseUrl}/${id}`, function (recipe) {
           renderRecipeTable([recipe]);
-        }).fail(function () {
+          $('#recipeName').val(recipe.name);
+          $('#recipeCuisine').val(recipe.cuisine);
+          $('#recipeImage').val(recipe.image);
+          $('#recipeRating').val(recipe.rating);
+          $('#addRecipeForm').removeClass('hidden');
+          scrollToOutput();
+        }).fail(() => {
           $output.text('❌ Recipe not found.');
         });
       });
 
+      // ✅ Task 8: Toggle Form
       $('#btnToggleForm').click(function () {
         $('#addRecipeForm').toggleClass('hidden');
       });
 
+      // ✅ Task 9: POST New Recipe
       $('#addRecipeForm').submit(function (e) {
         e.preventDefault();
 
@@ -181,18 +186,16 @@
         });
       });
 
+      // ✅ Task 10: DELETE Recipe
       $('#btnDelete').click(function () {
         const id = $('#recipeId').val().trim();
-        if (!id) {
-          $output.text('⚠️ Please enter a Recipe ID to delete.');
-          return;
-        }
+        if (!id) return $output.text('⚠️ Please enter a Recipe ID to delete.');
 
         $.ajax({
           url: `${baseUrl}/${id}`,
           method: 'DELETE',
           success: function (res) {
-            $output.text(`🗑️ Recipe deleted!\n${JSON.stringify(res, null, 2)}`);
+            $output.html(`<div style="color:crimson;">🗑️ Recipe deleted:</div><pre>${JSON.stringify(res, null, 2)}</pre>`);
             scrollToOutput();
           },
           error: function () {
@@ -201,25 +204,25 @@
         });
       });
 
+      // ✅ Task 11: UPDATE Recipe
       $('#btnUpdate').click(function () {
         const id = $('#recipeId').val().trim();
-        if (!id) {
-          $output.text('⚠️ Please enter a Recipe ID to update.');
-          return;
-        }
+        if (!id) return $output.text('⚠️ Please enter a Recipe ID to update.');
 
-        const updatedData = {
-          name: 'Updated Recipe Name',
-          rating: 4.8
+        const updatedRecipe = {
+          name: $('#recipeName').val(),
+          cuisine: $('#recipeCuisine').val(),
+          image: $('#recipeImage').val(),
+          rating: parseFloat($('#recipeRating').val())
         };
 
         $.ajax({
           url: `${baseUrl}/${id}`,
           method: 'PUT',
           contentType: 'application/json',
-          data: JSON.stringify(updatedData),
+          data: JSON.stringify(updatedRecipe),
           success: function (res) {
-            $output.text(`✅ Recipe updated!\n${JSON.stringify(res, null, 2)}`);
+            $output.html(`<div style="color:blue;">✏️ Recipe updated:</div><pre>${JSON.stringify(res, null, 2)}</pre>`);
             scrollToOutput();
           },
           error: function () {
