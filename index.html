@@ -1,0 +1,339 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vue BMI Calculator</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 40px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+
+    h4 {
+      color: #34495e;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      width: 130px;
+      font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group select {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      background-color: #3498db;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-left: 5px solid #3498db;
+      background-color: #ecf0f1;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="card">
+    <h1>This is a simple Vue BMI demo</h1>
+    <div class="form-group">
+      <label>Name:</label>
+      <input type="text" v-model="name" placeholder="Enter your name" />
+    </div>
+    <div class="form-group">
+      <label>Gender:</label>
+      <select v-model="gender">
+        <option disabled value="">Select gender</option>
+        <option>Male</option>
+        <option>Female</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Weight (kg):</label>
+      <input type="number" v-model="weight" placeholder="e.g. 70" />
+    </div>
+
+    <div class="form-group">
+      <label>Height (m):</label>
+      <input type="number" v-model="height" placeholder="e.g. 1.75" />
+    </div>
+
+    <button @click="calculateBMI">Calculate BMI</button>
+
+    <div class="result" v-if="bmi">
+        <p><strong>Hello {{ name }}, your BMI is:</strong> {{ bmi.toFixed(2) }}</p>
+        <p><strong>Category:</strong> {{ category }}</p>
+      </div>
+  </div>
+
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          name: '',
+          gender: '',
+          weight: null,
+          height: null,
+          bmi: null,
+          category: ''
+        };
+      },
+      methods: {
+        calculateBMI() {
+          if (this.height && this.weight) {
+            this.bmi = this.weight / (this.height * this.height);
+            const bmiValue = this.bmi;
+            if (bmiValue < 18.5) {
+              this.category = "Underweight";
+            } else if (bmiValue < 24.9) {
+              this.category = "Normal weight";
+            } else if (bmiValue < 29.9) {
+              this.category = "Overweight";
+            } else {
+              this.category = "Obesity";
+            }
+          } else {
+            alert("Please enter valid height and weight!");
+          }
+        }
+      }
+    });
+
+    app.mount("#app");
+  </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vue BMI Calculator</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f4f4f4;
+    }
+
+    #app {
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 15px 0 5px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 30px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #eef5f9;
+      border-left: 5px solid #3498db;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>BMI Calculator</h1>
+
+    <form @submit.prevent="calculateBMI">
+      <label for="name">Name:</label>
+      <input type="text" v-model="name" placeholder="Enter your name" required />
+
+      <label for="gender">Gender:</label>
+      <select v-model="gender" required>
+        <option disabled value="">Select gender</option>
+        <option>Male</option>
+        <option>Female</option>
+      </select>
+
+      <label for="weight">Weight (kg):</label>
+      <input type="number" v-model.number="weight" placeholder="e.g. 70" required />
+
+      <label for="height">Height (m):</label>
+      <input type="number" v-model.number="height" step="0.01" placeholder="e.g. 1.75" required />
+
+      <button type="submit">Calculate BMI</button>
+    </form>
+
+    <div class="result" v-if="bmi">
+      <p><strong>Hello {{ name }}, your BMI is:</strong> {{ bmi.toFixed(2) }}</p>
+      <p><strong>Category:</strong> {{ category }}</p>
+    </div>
+
+    <table v-if="bmiList.length">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Gender</th>
+          <th>Weight (kg)</th>
+          <th>Height (m)</th>
+          <th>BMI</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(entry, index) in bmiList" :key="index">
+          <td>{{ entry.name }}</td>
+          <td>{{ entry.gender }}</td>
+          <td>{{ entry.weight }}</td>
+          <td>{{ entry.height }}</td>
+          <td>{{ entry.bmi.toFixed(2) }}</td>
+          <td>{{ entry.category }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          name: '',
+          gender: '',
+          weight: null,
+          height: null,
+          bmi: null,
+          category: '',
+          bmiList: []
+        };
+      },
+      methods: {
+        calculateBMI() {
+          if (this.height > 0 && this.weight > 0) {
+            const bmiValue = this.weight / (this.height * this.height);
+            this.bmi = bmiValue;
+
+            if (bmiValue < 18.5) {
+              this.category = 'Underweight';
+            } else if (bmiValue < 24.9) {
+              this.category = 'Normal weight';
+            } else if (bmiValue < 29.9) {
+              this.category = 'Overweight';
+            } else {
+              this.category = 'Obesity';
+            }
+
+            this.bmiList.push({
+              name: this.name,
+              gender: this.gender,
+              weight: this.weight,
+              height: this.height,
+              bmi: bmiValue,
+              category: this.category
+            });
+
+            // Optional: reset input fields
+            this.name = '';
+            this.gender = '';
+            this.weight = null;
+            this.height = null;
+          } else {
+            alert("Please enter valid height and weight!");
+          }
+        }
+      }
+    });
+
+    app.mount("#app");
+  </script>
+</body>
+</html>

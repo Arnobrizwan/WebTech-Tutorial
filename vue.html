@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue BMI Calculator</title>
+  <script src="https://unpkg.com/vue@3"></script>
+</head>
+<body>
+  <h1>This is a simple Vue BMI demo</h1>
+  <h4>Header</h4>
+
+  <div id="app">
+    Name: <input type="text" v-model="name" placeholder="Enter name"><br><br>
+    Height (m): <input type="number" v-model="height" placeholder="e.g. 1.75"><br><br>
+    Weight (kg): <input type="number" v-model="weight" placeholder="e.g. 70"><br><br>
+    <button @click="calculateBMI">Calculate BMI</button>
+
+    <div v-if="bmi">
+      <p><strong>{{ name }}'s BMI:</strong> {{ bmi.toFixed(2) }}</p>
+      <p><strong>Category:</strong> {{ category }}</p>
+    </div>
+  </div>
+
+  <h4>Footer</h4>
+
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          name: '',
+          height: null,
+          weight: null,
+          bmi: null,
+          category: ''
+        };
+      },
+      methods: {
+        calculateBMI() {
+          if (this.height && this.weight) {
+            this.bmi = this.weight / (this.height * this.height);
+            this.setCategory();
+          } else {
+            alert("Please enter valid height and weight!");
+          }
+        },
+        setCategory() {
+          if (this.bmi < 18.5) {
+            this.category = 'Underweight';
+          } else if (this.bmi >= 18.5 && this.bmi < 24.9) {
+            this.category = 'Normal weight';
+          } else if (this.bmi >= 25 && this.bmi < 29.9) {
+            this.category = 'Overweight';
+          } else {
+            this.category = 'Obese';
+          }
+        }
+      }
+    });
+
+    app.mount("#app");
+  </script>
+</body>
+</html>
